@@ -44,18 +44,30 @@ Pull Requests são bem-vindos! ✨
 
 
 🇺🇸 Daily Score System - Go + Gin CRUD
+
 🚧 Project under construction
+
+
 This application is designed to manage and track points earned from working days and physical activities.
+
 
 🧠 Developed based on a course from Alura about Go and the Gin framework.
 
+
 📚 Technologies and concepts learned
+
 ✅ Build REST APIs with Go and Gin
+
 🐳 Database integration using Docker
+
 🧬 Use of GORM (most popular ORM for Go)
+
 🔍 Resource queries based on struct fields
+
 📦 Modular project architecture (models, routes, controllers)
+
 🧪 Course modules completed
+
 
 ```
 🛠️ Running the project
@@ -70,4 +82,5 @@ go run main.go
 ```
 
 🤝 Contributions
+
 Pull Requests are welcome! ✨
