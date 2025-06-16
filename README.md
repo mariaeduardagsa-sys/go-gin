@@ -28,7 +28,6 @@ Foi desenvolvida me baseando no projeto do um curso da [Alura](https://www.alura
 ```bash
 # Clone o repositório
 git clone https://github.com/mariaeduardagsa-sys/go-gin.git
-cd go-http
 
 # Suba o banco com Docker
 docker-compose up -d
