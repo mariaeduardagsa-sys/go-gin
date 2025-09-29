@@ -20,5 +20,10 @@ func HandleRequests() {
 	r.GET("/academia/:id", controllers.GetExercicioPorId)
 	r.DELETE("/academia/:id", controllers.DeleteExercicio)
 	r.PATCH("/academia/:id", controllers.EditaAcademia)
+
+	r.GET("/agua", controllers.GetAgua)
+	r.POST("/agua", controllers.CreateAgua)
+	r.DELETE("/agua/reset", controllers.DeleteAgua)
+
 	r.Run()
 }

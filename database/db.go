@@ -21,4 +21,5 @@ func ConectaComBancoDeDados() {
 	}
 	DB.AutoMigrate(&models.Trabalho{})
 	DB.AutoMigrate(&models.Academia{})
+	DB.AutoMigrate(&models.Agua{})
 }

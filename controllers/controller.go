@@ -118,3 +118,48 @@ func EditaAcademia(c *gin.Context) {
 	database.DB.Save(&academia)
 	c.JSON(http.StatusOK, academia)
 }
+
+func GetAgua(c *gin.Context) {
+	var agua []models.Agua
+	result := database.DB.Find(&agua)
+	if result.Error != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, agua)
+}
+
+func CreateAgua(c *gin.Context) {
+	var agua models.Agua
+	if err := c.ShouldBindJSON(&agua); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error()})
+		return
+	}
+	result := database.DB.Create(&agua)
+	if result.Error != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": result.Error.Error(),
+		})
+		return
+	}
+	quantidade := models.QuantidadeAgua(agua)
+	c.JSON(http.StatusOK, gin.H{
+		"message":    "Água registrada com sucesso",
+		"agua":       agua,
+		"quantidade": quantidade,
+	})
+}
+
+func DeleteAgua(c *gin.Context) {
+	models.ResetAgua()
+	var agua models.Agua
+	if err := c.ShouldBindJSON(&agua); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Pontuação de água resetada com sucesso",
+	})
+}
