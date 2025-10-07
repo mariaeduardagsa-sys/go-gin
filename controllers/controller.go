@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -30,6 +29,9 @@ func CreateTrabalho(c *gin.Context) {
 		return
 	}
 	database.DB.Create(&trabalho)
+	var pontuacao models.Pontuacao
+	database.DB.First(&pontuacao)
+	models.IncrementaPontuacaoTrabalho(&pontuacao)
 	c.JSON(http.StatusOK, trabalho)
 }
 
@@ -51,9 +53,12 @@ func DeleteTrabalho(c *gin.Context) {
 	database.DB.Delete(&trabalho, id)
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Trabalho deletado com sucesso"})
-	models.DecrementaPontuacaoTrabalho(trabalho)
+	var pontuacao models.Pontuacao
+	database.DB.First(&pontuacao)
+	models.DecrementaPontuacaoTrabalho(&pontuacao)
 }
 
+// add trabalho
 func EditaTrabalho(c *gin.Context) {
 	var trabalho models.Trabalho
 	id := c.Params.ByName("id")
@@ -63,13 +68,13 @@ func EditaTrabalho(c *gin.Context) {
 			"error": err.Error()})
 		return
 	}
-
 	database.DB.Model(&trabalho).UpdateColumns(trabalho)
+	database.DB.Save(&trabalho)
 	c.JSON(http.StatusOK, trabalho)
-
 }
 
-func GetAcademia(c *gin.Context) {
+// ----------------------------------------------------------------------
+/*func GetAcademia(c *gin.Context) {
 	var todosExercicios []models.Academia
 	database.DB.Find(&todosExercicios)
 	c.JSON(http.StatusOK, todosExercicios)
@@ -169,4 +174,4 @@ func DeleteAgua(c *gin.Context) {
 		"message": "Pontuação de água resetada com sucesso",
 	})
 	models.DecrementaPontuacaoAgua(agua)
-}
+}*/
