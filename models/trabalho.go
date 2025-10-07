@@ -6,9 +6,14 @@ import (
 
 type Trabalho struct {
 	gorm.Model
+	ID        uint   `json:"id" gorm:"primaryKey"`
 	Atividade string `json:"atividade"`
 	Status    string `json:"status"`
-	Pontuacao int    `json:"pontuacao"`
+}
+
+type PontosTrabalho struct {
+	Trabalho  Trabalho
+	Pontuacao int `json:"pontuacao"`
 }
 
 var Trabalhos []Trabalho

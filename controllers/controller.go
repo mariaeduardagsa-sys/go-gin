@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -50,6 +51,7 @@ func DeleteTrabalho(c *gin.Context) {
 	database.DB.Delete(&trabalho, id)
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Trabalho deletado com sucesso"})
+	models.DecrementaPontuacaoTrabalho(trabalho)
 }
 
 func EditaTrabalho(c *gin.Context) {
@@ -81,6 +83,7 @@ func CreateExercicio(c *gin.Context) {
 		return
 	}
 	database.DB.Create(&academia)
+	models.IncrementaPontuacaoAcademia(academia)
 	c.JSON(http.StatusOK, academia)
 }
 
@@ -102,6 +105,7 @@ func DeleteExercicio(c *gin.Context) {
 	database.DB.Delete(&academia, id)
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Exercício deletado com sucesso"})
+	models.DecrementaPontuacaoAcademia(academia)
 }
 
 func EditaAcademia(c *gin.Context) {
@@ -144,10 +148,12 @@ func CreateAgua(c *gin.Context) {
 		return
 	}
 	quantidade := models.QuantidadeAgua(agua)
+	models.IncrementaPontuacaoAgua(agua)
+	mensagem := fmt.Sprintf("Quantidade de água calculada para o dia: %d L", quantidade)
 	c.JSON(http.StatusOK, gin.H{
-		"message":    "Água registrada com sucesso",
-		"agua":       agua,
-		"quantidade": quantidade,
+		"message":          mensagem,
+		"agua":             agua,
+		"quantidadeDeAgua": quantidade,
 	})
 }
 
@@ -162,4 +168,5 @@ func DeleteAgua(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Pontuação de água resetada com sucesso",
 	})
+	models.DecrementaPontuacaoAgua(agua)
 }
