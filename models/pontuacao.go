@@ -6,8 +6,7 @@ import (
 
 type Pontuacao struct {
 	gorm.Model
-	ID        uint `json:"id" gorm:"primaryKey"`
-	Pontuacao int  `json:"pontuacao"`
+	Pontuacao int `json:"pontuacao"`
 }
 
 func IncrementaPontuacaoTrabalho(p *PontosTrabalho) {

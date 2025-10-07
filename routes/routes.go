@@ -23,7 +23,8 @@ func HandleRequests() {
 
 	r.GET("/agua", controllers.GetAgua)
 	r.POST("/agua", controllers.CreateAgua)
-	r.DELETE("/agua/reset", controllers.DeleteAgua)
+	r.DELETE("/agua/:id", controllers.DeleteAguaById)
+	r.PATCH("/agua/:id", controllers.EditaAgua)
 
 	r.Run()
 }

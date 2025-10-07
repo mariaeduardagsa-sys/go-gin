@@ -58,6 +58,7 @@ func DeleteTrabalho(c *gin.Context) {
 	var trabalho models.Trabalho
 	id := c.Params.ByName("id")
 	database.DB.Delete(&trabalho, id)
+	database.DB.Unscoped().Where("id = ?", id).Delete(&trabalho)
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Trabalho deletado com sucesso"})
@@ -66,7 +67,6 @@ func DeleteTrabalho(c *gin.Context) {
 	models.DecrementaPontuacaoTrabalho(&pontos)
 }
 
-// add trabalho
 func EditaTrabalho(c *gin.Context) {
 	var trabalho models.Trabalho
 	id := c.Params.ByName("id")
@@ -76,7 +76,7 @@ func EditaTrabalho(c *gin.Context) {
 			"error": err.Error()})
 		return
 	}
-	database.DB.Model(&trabalho).UpdateColumns(trabalho)
+	database.DB.Model(&trabalho).Updates(trabalho)
 	database.DB.Save(&trabalho)
 	c.JSON(http.StatusOK, trabalho)
 }
@@ -143,7 +143,7 @@ func EditaAcademia(c *gin.Context) {
 		return
 	}
 
-	database.DB.Model(&academia).UpdateColumns(academia)
+	database.DB.Model(&academia).Updates(academia)
 	database.DB.Save(&academia)
 	c.JSON(http.StatusOK, academia)
 }
@@ -192,18 +192,42 @@ func CreateAgua(c *gin.Context) {
 	})
 }
 
-func DeleteAgua(c *gin.Context) {
+func DeleteAguaById(c *gin.Context) {
 	var agua models.Agua
-	if err := c.ShouldBindJSON(&agua); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error()})
+	id := c.Params.ByName("id")
+	database.DB.First(&agua, id)
+	if agua.ID == 0 {
+		c.JSON(http.StatusNotFound, gin.H{
+			"error": "Registro de água não encontrado"})
 		return
 	}
-	msg := "Pontuação de água resetada com sucesso"
+	database.DB.Delete(&agua, id)
+	database.DB.Unscoped().Where("id = ?", id).Delete(&agua)
+
+	if agua.ID == 0 {
+		c.JSON(http.StatusNotFound, gin.H{
+			"error": "Registro de água não encontrado"})
+		return
+	}
+	msg := "Registro de água deletado com sucesso"
 	pontos := models.PontosAgua{Agua: agua, Pontuacao: 0}
 	models.DecrementaPontuacaoAgua(&pontos)
 	c.JSON(http.StatusOK, gin.H{
 		"message":   msg,
 		"pontuacao": pontos.Pontuacao,
 	})
+}
+
+func EditaAgua(c *gin.Context) {
+	var agua models.Agua
+	id := c.Params.ByName("id")
+	database.DB.First(&agua, id)
+	if err := c.ShouldBindJSON(&agua); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error()})
+		return
+	}
+	database.DB.Model(&agua).Updates(agua)
+	database.DB.Save(&agua)
+	c.JSON(http.StatusOK, agua)
 }

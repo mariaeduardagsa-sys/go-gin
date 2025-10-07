@@ -6,7 +6,6 @@ import (
 
 type Academia struct {
 	gorm.Model
-	ID         uint   `json:"id" gorm:"primaryKey"`
 	Atividade  string `json:"atividade"`
 	Status     string `json:"status"`
 	Superiores bool   `json:"superiores"`

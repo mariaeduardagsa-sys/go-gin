@@ -6,7 +6,6 @@ import (
 
 type Agua struct {
 	gorm.Model
-	ID        uint   `json:"id" gorm:"primaryKey"`
 	Atividade string `json:"atividade"`
 	Peso      int    `json:"peso"` // peso em kg
 }
