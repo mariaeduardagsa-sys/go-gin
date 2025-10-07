@@ -81,8 +81,6 @@ func EditaTrabalho(c *gin.Context) {
 	c.JSON(http.StatusOK, trabalho)
 }
 
-// ----------------------------------------------------------------------
-
 func GetAcademia(c *gin.Context) {
 	var todosExercicios []models.Academia
 	database.DB.Find(&todosExercicios)
