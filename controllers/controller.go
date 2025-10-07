@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -24,26 +25,32 @@ func GetTrabalho(c *gin.Context) {
 func CreateTrabalho(c *gin.Context) {
 	var trabalho models.Trabalho
 	if err := c.ShouldBindJSON(&trabalho); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+
 	database.DB.Create(&trabalho)
-	var pontuacao models.Pontuacao
-	database.DB.First(&pontuacao)
-	models.IncrementaPontuacaoTrabalho(&pontuacao)
-	c.JSON(http.StatusOK, trabalho)
+
+	pontos := models.PontosTrabalho{Trabalho: trabalho, Pontuacao: 0}
+	models.IncrementaPontuacaoTrabalho(&pontos)
+
+	c.JSON(http.StatusOK, gin.H{
+		"trabalho":  trabalho,
+		"pontuacao": pontos.Pontuacao,
+		"mensagem":  "Trabalho criado com pontuação atualizada",
+	})
 }
 
 func GetTrabalhoPorId(c *gin.Context) {
 	var trabalho models.Trabalho
 	id := c.Params.ByName("id")
 	database.DB.First(&trabalho, id)
+
 	if trabalho.ID == 0 {
-		c.JSON(http.StatusNotFound, gin.H{
-			"error": "Trabalho não encontrado"})
+		c.JSON(http.StatusNotFound, gin.H{"error": "Trabalho não encontrado"})
 		return
 	}
+
 	c.JSON(http.StatusOK, trabalho)
 }
 
@@ -51,11 +58,12 @@ func DeleteTrabalho(c *gin.Context) {
 	var trabalho models.Trabalho
 	id := c.Params.ByName("id")
 	database.DB.Delete(&trabalho, id)
+
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Trabalho deletado com sucesso"})
-	var pontuacao models.Pontuacao
-	database.DB.First(&pontuacao)
-	models.DecrementaPontuacaoTrabalho(&pontuacao)
+
+	pontos := models.PontosTrabalho{Trabalho: trabalho, Pontuacao: 0}
+	models.DecrementaPontuacaoTrabalho(&pontos)
 }
 
 // add trabalho
@@ -74,7 +82,8 @@ func EditaTrabalho(c *gin.Context) {
 }
 
 // ----------------------------------------------------------------------
-/*func GetAcademia(c *gin.Context) {
+
+func GetAcademia(c *gin.Context) {
 	var todosExercicios []models.Academia
 	database.DB.Find(&todosExercicios)
 	c.JSON(http.StatusOK, todosExercicios)
@@ -88,8 +97,13 @@ func CreateExercicio(c *gin.Context) {
 		return
 	}
 	database.DB.Create(&academia)
-	models.IncrementaPontuacaoAcademia(academia)
-	c.JSON(http.StatusOK, academia)
+	pontuacao := models.PontosAcademia{Academia: academia, Pontuacao: 0}
+	models.IncrementaPontuacaoAcademia(&pontuacao)
+
+	c.JSON(http.StatusOK, gin.H{
+		"academia":  academia,
+		"pontuacao": pontuacao.Pontuacao,
+	})
 }
 
 func GetExercicioPorId(c *gin.Context) {
@@ -110,7 +124,15 @@ func DeleteExercicio(c *gin.Context) {
 	database.DB.Delete(&academia, id)
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Exercício deletado com sucesso"})
-	models.DecrementaPontuacaoAcademia(academia)
+
+	pontos := models.PontosAcademia{Academia: academia, Pontuacao: 0}
+	models.DecrementaPontuacaoAcademia(&pontos)
+
+	c.JSON(http.StatusOK, gin.H{
+		"message":   "Exercício deletado com sucesso",
+		"pontuacao": pontos.Pontuacao,
+	})
+
 }
 
 func EditaAcademia(c *gin.Context) {
@@ -152,26 +174,38 @@ func CreateAgua(c *gin.Context) {
 		})
 		return
 	}
+
 	quantidade := models.QuantidadeAgua(agua)
-	models.IncrementaPontuacaoAgua(agua)
-	mensagem := fmt.Sprintf("Quantidade de água calculada para o dia: %d L", quantidade)
+	pontos := models.PontosAgua{Agua: agua, Pontuacao: 0}
+
+	quantidadeSemanal := models.QuantidadeAgua(agua) * 7
+	if pontos.Pontuacao >= quantidadeSemanal {
+		models.ResetAgua([]models.PontosAgua{pontos})
+	}
+
+	models.IncrementaPontuacaoAgua(&pontos)
+
+	msg := fmt.Sprintf("Quantidade de água ideal por dia: %d L", quantidade)
+
 	c.JSON(http.StatusOK, gin.H{
-		"message":          mensagem,
-		"agua":             agua,
-		"quantidadeDeAgua": quantidade,
+		"mensagem":  msg,
+		"agua":      agua,
+		"pontuacao": pontos.Pontuacao,
 	})
 }
 
 func DeleteAgua(c *gin.Context) {
-	models.ResetAgua()
 	var agua models.Agua
 	if err := c.ShouldBindJSON(&agua); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error()})
 		return
 	}
+	msg := fmt.Sprintf("Pontuação de água resetada com sucesso")
+	pontos := models.PontosAgua{Agua: agua, Pontuacao: 0}
+	models.DecrementaPontuacaoAgua(&pontos)
 	c.JSON(http.StatusOK, gin.H{
-		"message": "Pontuação de água resetada com sucesso",
+		"message":   msg,
+		"pontuacao": pontos.Pontuacao,
 	})
-	models.DecrementaPontuacaoAgua(agua)
-}*/
+}

@@ -10,17 +10,12 @@ type Pontuacao struct {
 	Pontuacao int  `json:"pontuacao"`
 }
 
-var pontuacao []Pontuacao
-var pontuacaoAcademia []PontosAcademia
-var pontuacaoAgua []PontosAgua
-var pontuacaoTrabalho []PontosTrabalho
-
-func IncrementaPontuacaoTrabalho(p *Pontuacao) {
+func IncrementaPontuacaoTrabalho(p *PontosTrabalho) {
 	p.Pontuacao += 10
 	println("Pontuação atualizada para: ", p.Pontuacao)
 }
 
-func DecrementaPontuacaoTrabalho(p *Pontuacao) {
+func DecrementaPontuacaoTrabalho(p *PontosTrabalho) {
 	p.Pontuacao -= 10
 	println("Pontuação atualizada para: ", p.Pontuacao)
 }
@@ -41,7 +36,9 @@ func IncrementaPontuacaoAgua(p *PontosAgua) {
 }
 
 func DecrementaPontuacaoAgua(p *PontosAgua) {
-	p.Pontuacao -= 1
+	if p.Pontuacao > 0 {
+		p.Pontuacao -= 1
+	}
 	println("Pontuação da água atualizada para:", p.Pontuacao)
 }
 
