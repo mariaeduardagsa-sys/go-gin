@@ -31,7 +31,14 @@ func CreateTrabalho(c *gin.Context) {
 
 	database.DB.Create(&trabalho)
 
-	pontos := models.PontosTrabalho{Trabalho: trabalho, Pontuacao: 0}
+	var pontuacaoTabela models.Pontuacao
+	database.DB.First(&pontuacaoTabela, "atividade = ?", trabalho.Atividade)
+	database.DB.Create(&pontuacaoTabela)
+	pontuacaoTabela.Atividade = "Trabalho"
+	pontuacaoTabela.Pontuacao += 10
+	database.DB.Save(&pontuacaoTabela)
+
+	pontos := models.PontosTrabalho{Trabalho: trabalho, Pontuacao: 10}
 	models.IncrementaPontuacaoTrabalho(&pontos)
 
 	c.JSON(http.StatusOK, gin.H{
@@ -95,6 +102,14 @@ func CreateExercicio(c *gin.Context) {
 		return
 	}
 	database.DB.Create(&academia)
+
+	var pontuacaoTabela models.Pontuacao
+	database.DB.First(&pontuacaoTabela, "atividade = ?", academia.Atividade)
+	database.DB.Create(&pontuacaoTabela)
+	pontuacaoTabela.Atividade = "Academia"
+	pontuacaoTabela.Pontuacao += 20
+	database.DB.Save(&pontuacaoTabela)
+
 	pontuacao := models.PontosAcademia{Academia: academia, Pontuacao: 0}
 	models.IncrementaPontuacaoAcademia(&pontuacao)
 
@@ -174,6 +189,14 @@ func CreateAgua(c *gin.Context) {
 	}
 
 	quantidade := models.QuantidadeAgua(agua)
+
+	var pontuacaoTabela models.Pontuacao
+	database.DB.First(&pontuacaoTabela, "atividade = ?", agua.Atividade)
+	database.DB.Create(&pontuacaoTabela)
+	pontuacaoTabela.Atividade = "Agua"
+	pontuacaoTabela.Pontuacao += 1
+	database.DB.Save(&pontuacaoTabela)
+
 	pontos := models.PontosAgua{Agua: agua, Pontuacao: 0}
 
 	quantidadeSemanal := models.QuantidadeAgua(agua) * 7
