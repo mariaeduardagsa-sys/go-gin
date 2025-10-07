@@ -201,7 +201,7 @@ func DeleteAgua(c *gin.Context) {
 			"error": err.Error()})
 		return
 	}
-	msg := fmt.Sprintf("Pontuação de água resetada com sucesso")
+	msg := "Pontuação de água resetada com sucesso"
 	pontos := models.PontosAgua{Agua: agua, Pontuacao: 0}
 	models.DecrementaPontuacaoAgua(&pontos)
 	c.JSON(http.StatusOK, gin.H{
