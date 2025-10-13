@@ -1,2 +1,2 @@
-/k8s
+# Ignore PostgreSQL data directory
 /postgres-data
