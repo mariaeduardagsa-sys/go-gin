@@ -1,0 +1,160 @@
+# -------------------------------
+# Volume Persistente do Postgres
+# -------------------------------
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+# -------------------------------
+# Deployment do Postgres
+# -------------------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:15
+        ports:
+        - containerPort: 5432
+        env:
+        - name: POSTGRES_USER
+          value: "root"
+        - name: POSTGRES_PASSWORD
+          value: "root"
+        - name: POSTGRES_DB
+          value: "root"
+        volumeMounts:
+        - name: postgres-storage
+          mountPath: /var/lib/postgresql/data
+      volumes:
+      - name: postgres-storage
+        persistentVolumeClaim:
+          claimName: postgres-pvc
+---
+# -------------------------------
+# Service do Postgres
+# -------------------------------
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+spec:
+  selector:
+    app: postgres
+  ports:
+  - port: 5432
+    targetPort: 5432
+  type: ClusterIP
+---
+# -------------------------------
+# Deployment do PgAdmin
+# -------------------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pgadmin
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pgadmin
+  template:
+    metadata:
+      labels:
+        app: pgadmin
+    spec:
+      containers:
+      - name: pgadmin
+        image: dpage/pgadmin4:7.8
+        ports:
+        - containerPort: 80
+        env:
+        - name: PGADMIN_DEFAULT_EMAIL
+          value: "eduarda@compensation.com"
+        - name: PGADMIN_DEFAULT_PASSWORD
+          value: "123456"
+---
+# -------------------------------
+# Service do PgAdmin
+# -------------------------------
+apiVersion: v1
+kind: Service
+metadata:
+  name: pgadmin
+spec:
+  selector:
+    app: pgadmin
+  ports:
+  - port: 80
+    targetPort: 80
+    nodePort: 30080
+  type: NodePort
+---
+# -------------------------------
+# Deployment da App Go-Gin
+# -------------------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: go-gin-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: go-gin-app
+  template:
+    metadata:
+      labels:
+        app: go-gin-app
+    spec:
+      containers:
+      - name: go-gin-app
+        image: go-gin:latest
+        imagePullPolicy: Never 
+        ports:
+        - containerPort: 8080
+        env:
+        - name: DB_HOST
+          value: "postgres"
+        - name: DB_PORT
+          value: "5432"
+        - name: DB_USER
+          value: "root"
+        - name: DB_PASSWORD
+          value: "root"
+        - name: DB_NAME
+          value: "root"
+---
+# -------------------------------
+# Service da App Go-Gin
+# -------------------------------
+apiVersion: v1
+kind: Service
+metadata:
+  name: go-gin-service
+spec:
+  selector:
+    app: go-gin-app
+  ports:
+  - port: 8080
+    targetPort: 8080
+    nodePort: 30000
+  type: NodePort

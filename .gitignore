@@ -1,3 +1,2 @@
 # Ignore PostgreSQL data directory
 /postgres-data
-cluster.yaml
